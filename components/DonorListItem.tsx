@@ -9,10 +9,14 @@ interface DonorListItemProps {
 }
 
 export default function DonorListItem({ donor }: DonorListItemProps) {
+  const iconName = "checkcircle";
+  const color = "green";
   return (
     <Card>
       <View style={styles.row}>
-        <View style={{ width: "40%", gap: 3 }}></View>
+        <View style={{ width: "40%", gap: 3 }}>
+          <DonorNumber iconName={iconName} color={color} donorNum={donor.id} />
+        </View>
         <DonorInfo
           name={donor.name}
           description={donor.national_id}
@@ -42,6 +46,30 @@ function DonorInfo({
       <Text style={{ fontSize: 12, color: "gray" }}>
         {new Date(date * 1000).toDateString()}
       </Text>
+    </View>
+  );
+}
+
+function DonorNumber({
+  iconName,
+  color,
+  donorNum,
+}: {
+  iconName: "checkcircle";
+  color: string;
+  donorNum: number;
+}) {
+  return (
+    <View style={styles.row}>
+      <AntDesign name={iconName} size={18} color={color} />
+      <AutoSizeText
+        fontSize={32}
+        mode={ResizeTextMode.max_lines}
+        numberOfLines={1}
+        style={[styles.amount, { maxWidth: "80%" }]}
+      >
+        D{donorNum}
+      </AutoSizeText>
     </View>
   );
 }

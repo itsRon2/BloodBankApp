@@ -13,6 +13,7 @@ import NetInfo from "@react-native-community/netinfo";
 import axios from "axios";
 import { useSQLiteContext } from "expo-sqlite/next";
 import { Donor } from "@/types";
+import Card from "@/components/ui/Card";
 
 const SyncScreen = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -100,15 +101,17 @@ const SyncScreen = () => {
           <Text>No local data available</Text>
         ) : (
           localDonors.map((donor) => (
-            <View key={donor.id} style={styles.donorCard}>
-              <Text>ID: {donor.id}</Text>
-              <Text>Name: {donor.name}</Text>
-              <Text>Height: {donor.height}</Text>
-              <Text>Weight: {donor.mass}</Text>
-              <Text>Age: {donor.age}</Text>
-              <Text>Sex: {donor.sex}</Text>
-              <Text>Pack Number: {donor.packNumber}</Text>
-            </View>
+            <Card style={styles.row}>
+              <View key={donor.id} style={styles.donorCard}>
+                <Text>ID: {donor.id}</Text>
+                <Text>Name: {donor.name}</Text>
+                <Text>Height: {donor.height}</Text>
+                <Text>Weight: {donor.mass}</Text>
+                <Text>Age: {donor.age}</Text>
+                <Text>Sex: {donor.sex}</Text>
+                <Text>Pack Number: {donor.packNumber}</Text>
+              </View>
+            </Card>
           ))
         )}
       </View>
@@ -148,6 +151,11 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 5,
     borderRadius: 5,
+    gap: 6,
+  },
+  row: {
+    gap: 6,
+    margin: 5,
   },
 });
 
