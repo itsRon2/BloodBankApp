@@ -70,13 +70,12 @@ export default function AddDonor({
           <Card>
             <TextInput
               placeholder="Full Name"
-              style={{ fontSize: 32, marginBottom: 15, fontWeight: "bold" }}
-              keyboardType="default"
-              onChangeText={(text) => {
-                // capitalize characters before setting the state
-                const donorName = text.toUpperCase;
-                setName(donorName);
+              style={{
+                fontSize: 32,
+                marginBottom: 15,
+                fontWeight: "bold",
               }}
+              onChangeText={setName}
             />
             <TextInput
               placeholder="XX-XXXXXXX X XX"

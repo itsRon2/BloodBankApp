@@ -5,6 +5,7 @@ import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "@/screens/Home";
+import "expo-router/entry";
 
 const Stack = createNativeStackNavigator();
 

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ScrollView, StyleSheet, Text, TextStyle, View } from "react-native";
-import { Donor, DonorsBled } from "../types";
+import { Donor, DonorsBled } from "@/types";
 import { useSQLiteContext } from "expo-sqlite/next";
 import DonorsList from "@/components/DonorsList";
 import Card from "@/components/ui/Card";
@@ -115,21 +115,15 @@ function DonorsSummary({ maleDonors, femaleDonors }: DonorsBled) {
       <Text style={styles.periodTitle}>Summary for {readablePeriod}</Text>
       <Text style={styles.summaryText}>
         Male Donors:{" "}
-        <Text style={getDonorsTextStyle(maleDonors)}>
-          {formatValue(maleDonors)}
-        </Text>
+        <Text style={getDonorsTextStyle(maleDonors)}>{maleDonors}</Text>
       </Text>
       <Text style={styles.summaryText}>
         Female Donors:{" "}
-        <Text style={getDonorsTextStyle(femaleDonors)}>
-          {formatValue(femaleDonors)}
-        </Text>
+        <Text style={getDonorsTextStyle(femaleDonors)}>{femaleDonors}</Text>
       </Text>
       <Text style={styles.summaryText}>
         Total Donors Bled:{" "}
-        <Text style={getDonorsTextStyle(totalDonors)}>
-          {formatValue(totalDonors)}
-        </Text>
+        <Text style={getDonorsTextStyle(totalDonors)}>{totalDonors}</Text>
       </Text>
     </Card>
   );
