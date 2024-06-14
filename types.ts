@@ -14,3 +14,9 @@ export interface DonorsBled {
   maleDonors: number;
   femaleDonors: number;
 }
+
+export type RootStackParamList = {
+  Home: undefined;
+  Sync: undefined;
+  SplashScreen: undefined;
+};

@@ -4,10 +4,14 @@ import { ActivityIndicator, Text, View } from "react-native";
 import * as FileSystem from "expo-file-system";
 import { Asset } from "expo-asset";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
 import Home from "@/screens/Home";
 import "expo-router/entry";
+import SyncScreen from "@/screens/SyncScreen";
+import { RootStackParamList } from "@/types";
+import SplashScreenComponent from "@/screens/SplashScreen";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const loadDatabase = async () => {
   const dbName = "BloodBankDB.db";
@@ -51,7 +55,7 @@ export default function App() {
       }
     >
       <SQLiteProvider databaseName="BloodBankDB.db" useSuspense>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="SplashScreen">
           <Stack.Screen
             name="Home"
             component={Home}
@@ -60,6 +64,15 @@ export default function App() {
               headerLargeTitle: true,
             }}
           />
+          <Stack.Screen
+            name="Sync"
+            component={SyncScreen}
+            options={{
+              headerTitle: "Donor Tool",
+              headerLargeTitle: true,
+            }}
+          />
+          <Stack.Screen name="SplashScreen" component={SplashScreenComponent} />
         </Stack.Navigator>
       </SQLiteProvider>
     </React.Suspense>

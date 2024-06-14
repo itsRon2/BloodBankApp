@@ -5,8 +5,16 @@ import { useSQLiteContext } from "expo-sqlite/next";
 import DonorsList from "@/components/DonorsList";
 import Card from "@/components/ui/Card";
 import AddDonor from "@/components/AddDonor";
+import SyncDonors from "@/components/SyncDonors";
+import { RootStackParamList } from "@/types";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-export default function Home() {
+type SyncScreenNavigationProp = StackNavigationProp<RootStackParamList, "Sync">;
+type Props = {
+  navigation: SyncScreenNavigationProp;
+};
+
+export default function Home({ navigation }: Props) {
   const [donors, setDonors] = React.useState<Donor[]>([]);
   const [donorsBled, setDonorsBled] = React.useState<DonorsBled>({
     maleDonors: 0,
@@ -38,17 +46,17 @@ export default function Home() {
     const startOfMonthTimestamp = Math.floor(startOfMonth.getTime() / 1000);
     const endOfMonthTimestamp = Math.floor(endOfMonth.getTime() / 1000);
 
-    const donorsBled = await db.getAllAsync<DonorsBled>(
+    const numberDonors = await db.getAllAsync<DonorsBled>(
       `
       SELECT
-        COALESCE(SUM(CASE WHEN sex = 'Male' THEN 1 ELSE 0 END ), 0) AS maleDonors,
-        COALESCE(SUM(CASE WHEN sex = 'Female' THEN 1 ELSE 0 END ), 0) AS femaleDonors
+        COALESCE(SUM(CASE WHEN sex = 'male' THEN 1 ELSE 0 END ), 0) AS maleDonors,
+        COALESCE(SUM(CASE WHEN sex = 'female' THEN 1 ELSE 0 END ), 0) AS femaleDonors
       FROM donors
       WHERE date >= ? AND date <= ?;
     `,
       [startOfMonthTimestamp, endOfMonthTimestamp]
     );
-    setDonorsBled(donorsBled[0]);
+    setDonorsBled(numberDonors[0]);
   }
 
   async function deleteDonor(id: number) {
@@ -82,6 +90,7 @@ export default function Home() {
   return (
     <ScrollView contentContainerStyle={{ padding: 15, paddingVertical: 170 }}>
       <AddDonor insertDonor={insertDonor} />
+      <SyncDonors onPress={() => navigation.navigate("Sync")} />
       <DonorsSummary
         maleDonors={donorsBled.maleDonors}
         femaleDonors={donorsBled.femaleDonors}
@@ -103,12 +112,6 @@ function DonorsSummary({ maleDonors, femaleDonors }: DonorsBled) {
     fontWeight: "bold",
     color: value < 0 ? "#ff4500" : "#2e8b57", // Red for negative, custom green for positive
   });
-
-  // Helper function to format values
-  const formatValue = (value: number) => {
-    const absValue = Math.abs(value).toFixed(2);
-    return `${value < 0 ? "-" : ""}$${absValue}`;
-  };
 
   return (
     <Card style={styles.container}>
@@ -133,7 +136,6 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 15,
     paddingBottom: 7,
-    // Add other container styles as necessary
   },
   periodTitle: {
     fontSize: 20,
@@ -146,5 +148,4 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 10,
   },
-  // Removed moneyText style since we're now generating it dynamically
 });

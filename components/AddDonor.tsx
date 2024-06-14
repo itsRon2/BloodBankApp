@@ -12,12 +12,6 @@ export default function AddDonor({
 }: {
   insertDonor(donor: Donor): Promise<void>;
 }) {
-  const [isAddingTransaction, setIsAddingTransaction] =
-    React.useState<boolean>(false);
-  const [currentTab, setCurrentTab] = React.useState<number>(0);
-
-  const [typeSelected, setTypeSelected] = React.useState<string>("");
-
   const [isAddingDonor, setIsAddingDonor] = React.useState<boolean>(false);
 
   const [name, setName] = React.useState<string>("");

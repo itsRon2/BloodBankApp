@@ -7,15 +7,19 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import axios from "axios";
-import { getDonorData } from "@/utils/database";
+import { useSQLiteContext } from "expo-sqlite/next";
+import { Donor } from "@/types";
 
 const SyncScreen = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [syncInProgress, setSyncInProgress] = useState(false);
   const [localDonors, setLocalDonors] = useState<any[]>([]);
+
+  const db = useSQLiteContext();
 
   useEffect(() => {
     // Check network status
@@ -26,13 +30,22 @@ const SyncScreen = () => {
     });
 
     // Fetch donors from local database
-    setLocalDonors(getDonorData);
-    console.log(`local donors: ${localDonors}`);
+    db.withTransactionAsync(async () => {
+      await getDonorData();
+    });
 
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [db]);
+
+  async function getDonorData() {
+    const result = await db.getAllAsync<Donor>(
+      `SELECT * FROM donors ORDER BY date DESC;`
+    );
+    setLocalDonors(result);
+    console.log(result);
+  }
 
   const syncDataToServer = async () => {
     if (!isConnected) {
@@ -67,37 +80,39 @@ const SyncScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Sync Data</Text>
-      <Button
-        title="Sync to Server"
-        onPress={syncDataToServer}
-        disabled={syncInProgress}
-      />
-      {syncInProgress && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text style={styles.syncingText}>Syncing in progress...</Text>
-        </View>
-      )}
-
-      <Text style={styles.localDataHeader}>Local Donors:</Text>
-      {localDonors.length === 0 ? (
-        <Text>No local data available</Text>
-      ) : (
-        localDonors.map((donor) => (
-          <View key={donor.id} style={styles.donorCard}>
-            <Text>ID: {donor.id}</Text>
-            <Text>Name: {donor.name}</Text>
-            <Text>Height: {donor.height}</Text>
-            <Text>Weight: {donor.weight}</Text>
-            <Text>Age: {donor.age}</Text>
-            <Text>Sex: {donor.sex}</Text>
-            <Text>Pack Number: {donor.packNumber}</Text>
+    <ScrollView contentContainerStyle={{ padding: 15, paddingVertical: 170 }}>
+      <View style={styles.container}>
+        <Text style={styles.header}>Sync Data</Text>
+        <Button
+          title="Sync to Server"
+          onPress={syncDataToServer}
+          disabled={syncInProgress}
+        />
+        {syncInProgress && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text style={styles.syncingText}>Syncing in progress...</Text>
           </View>
-        ))
-      )}
-    </View>
+        )}
+
+        <Text style={styles.localDataHeader}>Local Donors:</Text>
+        {localDonors.length === 0 ? (
+          <Text>No local data available</Text>
+        ) : (
+          localDonors.map((donor) => (
+            <View key={donor.id} style={styles.donorCard}>
+              <Text>ID: {donor.id}</Text>
+              <Text>Name: {donor.name}</Text>
+              <Text>Height: {donor.height}</Text>
+              <Text>Weight: {donor.mass}</Text>
+              <Text>Age: {donor.age}</Text>
+              <Text>Sex: {donor.sex}</Text>
+              <Text>Pack Number: {donor.packNumber}</Text>
+            </View>
+          ))
+        )}
+      </View>
+    </ScrollView>
   );
 };
 
@@ -105,12 +120,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    padding: 20,
+    padding: 1,
   },
   header: {
     fontSize: 24,
     marginBottom: 20,
     textAlign: "center",
+    marginTop: 0,
   },
   loadingContainer: {
     alignItems: "center",

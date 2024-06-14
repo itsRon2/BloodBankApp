@@ -3,13 +3,11 @@ import { Donor } from "@/types";
 
 const db = useSQLiteContext();
 
-
-export const getDonorData = (){
-    const result = await db.getAllAsync<Donor>(
-        `SELECT * FROM donors ORDER BY date DESC;`
-      );
-    console.log(result)
-    return result
+export async function getDonorData() {
+  const result = await db.getAllAsync<Donor>(
+    `SELECT * FROM donors ORDER BY date DESC;`
+  );
+  console.log(result);
 }
 
 // Clear local donors after sync
