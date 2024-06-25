@@ -25,7 +25,7 @@ function SyncButton({ onPress }: SyncButtonProps) {
         marginBottom: 15,
       }}
     >
-      <MaterialIcons name="add-circle-outline" size={24} color="#007BFF" />
+      <MaterialIcons name="sync" size={24} color="#007BFF" />
       <Text style={{ fontWeight: "700", color: "#007BFF", marginLeft: 5 }}>
         Sync Donors
       </Text>

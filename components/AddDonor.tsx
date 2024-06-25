@@ -64,6 +64,7 @@ export default function AddDonor({
           <Card>
             <TextInput
               placeholder="Full Name"
+              placeholderTextColor="#888"
               style={{
                 fontSize: 32,
                 marginBottom: 15,
@@ -72,12 +73,14 @@ export default function AddDonor({
               onChangeText={setName}
             />
             <TextInput
-              placeholder="XX-XXXXXXX X XX"
+              placeholder="632244057a50"
+              placeholderTextColor="#888"
               style={{ marginBottom: 15 }}
               onChangeText={setNationalId}
             />
             <TextInput
               placeholder="Height cm"
+              placeholderTextColor="#888"
               style={{ marginBottom: 15 }}
               onChangeText={(text) => {
                 const height = Number(text);
@@ -86,6 +89,7 @@ export default function AddDonor({
             />
             <TextInput
               placeholder="Mass kg"
+              placeholderTextColor="#888"
               style={{ marginBottom: 15 }}
               onChangeText={(text) => {
                 const mass = Number(text);
@@ -94,6 +98,7 @@ export default function AddDonor({
             />
             <TextInput
               placeholder="Pack Number"
+              placeholderTextColor="#888"
               style={{ marginBottom: 15 }}
               onChangeText={(text) => {
                 const pack = Number(text);
@@ -102,6 +107,7 @@ export default function AddDonor({
             />
             <TextInput
               placeholder="Age years"
+              placeholderTextColor="#888"
               style={{ marginBottom: 15 }}
               onChangeText={(text) => {
                 const age = Number(text);
@@ -110,6 +116,7 @@ export default function AddDonor({
             />
             <TextInput
               placeholder="Sex"
+              placeholderTextColor="#888"
               style={{ marginBottom: 15 }}
               onChangeText={setSex}
             />

@@ -1,5 +1,12 @@
 import * as React from "react";
-import { ScrollView, StyleSheet, Text, TextStyle, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  Alert,
+} from "react-native";
 import { Donor, DonorsBled } from "@/types";
 import { useSQLiteContext } from "expo-sqlite/next";
 import DonorsList from "@/components/DonorsList";
@@ -49,8 +56,8 @@ export default function Home({ navigation }: Props) {
     const numberDonors = await db.getAllAsync<DonorsBled>(
       `
       SELECT
-        COALESCE(SUM(CASE WHEN sex = 'male' THEN 1 ELSE 0 END ), 0) AS maleDonors,
-        COALESCE(SUM(CASE WHEN sex = 'female' THEN 1 ELSE 0 END ), 0) AS femaleDonors
+        COALESCE(SUM(CASE WHEN sex = 'Male'   THEN 1 ELSE 0 END ), 0) AS maleDonors,
+        COALESCE(SUM(CASE WHEN sex = 'Female' THEN 1 ELSE 0 END ), 0) AS femaleDonors
       FROM donors
       WHERE date >= ? AND date <= ?;
     `,
@@ -67,24 +74,67 @@ export default function Home({ navigation }: Props) {
   }
 
   async function insertDonor(donor: Donor) {
-    db.withTransactionAsync(async () => {
-      await db.runAsync(
-        `
-        INSERT INTO donors (name, date, national_id, height, mass, packNumber, age, sex) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-      `,
-        [
-          donor.name,
-          donor.date,
-          donor.national_id,
-          donor.height,
-          donor.mass,
-          donor.packNumber,
-          donor.age,
-          donor.sex,
-        ]
+    // Check if all fields are filled
+    if (
+      !donor.name ||
+      !donor.national_id ||
+      donor.height === null ||
+      donor.mass === null ||
+      donor.packNumber === null ||
+      donor.age === null ||
+      !donor.sex
+    ) {
+      Alert.alert("Error", "All fields must be filled.");
+      return;
+    }
+    // Validate National ID format (12-character alphanumeric string)
+    const nationalIdRegex = /^[0-9a-z]{12}$/;
+    if (!nationalIdRegex.test(donor.national_id)) {
+      Alert.alert(
+        "Error",
+        "National ID format is invalid. It should be a 12-character alphanumeric string like 632244057b80"
       );
-      await getData();
-    });
+      return;
+    }
+
+    // Validate Age between 50 and 100
+    if (donor.age < 50 || donor.age > 80) {
+      Alert.alert("Error", "Age of the donor should be between 50 and 80");
+      return;
+    }
+
+    // Validate Pack Number format (exactly 8 digits)
+    const packNumberRegex = /^\d{8}$/;
+    if (!packNumberRegex.test(String(donor.packNumber))) {
+      Alert.alert("Error", "Pack Number must be exactly 8 digits.");
+      return;
+    }
+
+    // All validations passed, proceed with saving to the database
+    try {
+      await db.withTransactionAsync(async () => {
+        await db.runAsync(
+          `
+        INSERT INTO donors (name, date, national_id, height, mass, packNumber, age, sex) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        `,
+          [
+            donor.name,
+            donor.date,
+            donor.national_id,
+            donor.height,
+            donor.mass,
+            donor.packNumber,
+            donor.age,
+            donor.sex,
+          ]
+        );
+        await getData();
+      });
+      Alert.alert("Success", "Data saved successfully!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to save data. Please try again.");
+      console.error(error);
+    }
   }
 
   return (

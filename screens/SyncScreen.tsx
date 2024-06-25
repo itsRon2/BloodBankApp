@@ -14,30 +14,29 @@ import axios from "axios";
 import { useSQLiteContext } from "expo-sqlite/next";
 import { Donor } from "@/types";
 import Card from "@/components/ui/Card";
+import * as Network from "expo-network";
 
 const SyncScreen = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [syncInProgress, setSyncInProgress] = useState(false);
-  const [localDonors, setLocalDonors] = useState<any[]>([]);
+  const [localDonors, setLocalDonors] = useState<Donor[]>([]);
 
   const db = useSQLiteContext();
 
   useEffect(() => {
     // Check network status
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      const connectionStatus = state.isConnected ?? false;
-      const wifiStatus = state.isWifiEnabled ?? false;
-      setIsConnected(connectionStatus && wifiStatus);
-    });
+    const checkNetwork = async () => {
+      const networkState = await Network.getNetworkStateAsync();
+      networkState.isConnected ? setIsConnected(true) : setIsConnected(false);
+    };
 
     // Fetch donors from local database
     db.withTransactionAsync(async () => {
       await getDonorData();
+      console.log(localDonors);
     });
 
-    return () => {
-      unsubscribe();
-    };
+    checkNetwork();
   }, [db]);
 
   async function getDonorData() {
@@ -45,7 +44,6 @@ const SyncScreen = () => {
       `SELECT * FROM donors ORDER BY date DESC;`
     );
     setLocalDonors(result);
-    console.log(result);
   }
 
   const syncDataToServer = async () => {
@@ -63,12 +61,15 @@ const SyncScreen = () => {
 
     try {
       // Send data to server
-      const response = await axios.post("http://your-server-address/api/sync", {
-        donors: localDonors,
-      });
+
+      const response = await axios.post(
+        "http://172.20.10.8:3000/sync",
+        localDonors
+      );
 
       if (response.status === 200) {
         Alert.alert("Sync Complete", "Data synced successfully.");
+        console.log(`local donors: ${JSON.stringify(localDonors)}`);
       } else {
         Alert.alert("Sync Failed", "Failed to sync data.");
       }
@@ -81,7 +82,7 @@ const SyncScreen = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 15, paddingVertical: 170 }}>
+    <ScrollView contentContainerStyle={{ padding: 15, paddingVertical: 150 }}>
       <View style={styles.container}>
         <Text style={styles.header}>Sync Data</Text>
         <Button
@@ -101,7 +102,7 @@ const SyncScreen = () => {
           <Text>No local data available</Text>
         ) : (
           localDonors.map((donor) => (
-            <Card style={styles.row}>
+            <Card style={styles.row} key={donor.id}>
               <View key={donor.id} style={styles.donorCard}>
                 <Text>ID: {donor.id}</Text>
                 <Text>Name: {donor.name}</Text>
